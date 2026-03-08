@@ -3,7 +3,7 @@
 .fpu fpv4-sp-d16
 .thumb
 
-.include "definitions.s"
+#include "definitions.s"
 
 .global main
 .global SystemInit

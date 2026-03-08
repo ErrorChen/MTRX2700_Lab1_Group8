@@ -1,0 +1,75 @@
+############################################
+# STM32CubeIDE / Eclipse - build artifacts
+############################################
+
+# Common build output folders
+Debug/
+Release/
+build/
+Build/
+out/
+Output/
+bin/
+obj/
+
+# Some CubeIDE projects generate nested build folders
+**/Debug/**
+**/Release/**
+
+# Object files / dependency files
+*.o
+*.obj
+*.d
+*.su
+
+# Linker / binary outputs
+*.elf
+*.axf
+*.map
+*.hex
+*.bin
+*.srec
+*.dfu
+
+# Listings / size / reports
+*.list
+*.lst
+*.lss
+*.siz
+*.size
+*.sym
+*.log
+
+# Make/CMake intermediate (if generated)
+*.mk
+objects.list
+objects.mk
+sources.mk
+subdir.mk
+makefile
+# If you actually want to version-control your Makefile, comment the line above.
+
+############################################
+# STM32CubeIDE / Eclipse - IDE temp files
+############################################
+
+# Eclipse workspace metadata (should NOT be in repo)
+.metadata/
+.recommenders/
+.settings/
+# If your team relies on shared Eclipse settings, you can remove ".settings/" from ignore.
+
+# Launch configs (optional)
+*.launch
+
+############################################
+# OS / editor junk
+############################################
+.DS_Store
+Thumbs.db
+
+# VS Code / JetBrains (optional)
+.vscode/
+.idea/
+*.swp
+*~

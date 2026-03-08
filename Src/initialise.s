@@ -3,7 +3,7 @@
 .fpu fpv4-sp-d16
 .thumb
 
-.include "definitions.s"
+#include "definitions.s"
 
 .global enablePeripheralClocks
 .global initialiseDiscoveryBoard
@@ -23,7 +23,7 @@
 enablePeripheralClocks:
     ldr r0, =RCC_BASE
     ldr r1, [r0, #RCC_AHBENR_OFFSET]
-    ldr r2, =(RCC_AHBENR_IOPAEN | RCC_AHBENR_IOPEEN)
+    LDR r2, =(RCC_AHBENR_IOPAEN | RCC_AHBENR_IOPEEN)
     orrs r1, r1, r2
     str r1, [r0, #RCC_AHBENR_OFFSET]
     bx lr
