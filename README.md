@@ -1,5 +1,5 @@
 # Lab1_Group8 - STM32F3 Pure Assembly Skeleton
-
+Test
 ## Project Overview
 This is a pure-assembly STM32CubeIDE project skeleton for STM32F3DISCOVERY (MCU: STM32F303VCT6, Cortex-M4).
 Application logic is built from `Src/assembly.s` as a single entry module, with startup and linker files kept from CubeIDE.
