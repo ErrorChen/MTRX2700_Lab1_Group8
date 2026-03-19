@@ -7,7 +7,7 @@
 .thumb
 
 /* ======================= Runtime Selection ======================== */
-.equ ACTIVE_EXERCISE,                   1
+.equ ACTIVE_EXERCISE,                    4
 
 .equ EX2_MODE_BUTTON,                    0
 .equ EX2_MODE_TIMED,                     1
