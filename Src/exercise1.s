@@ -5,8 +5,9 @@
 .extern stringLength
 .extern stringConvertCaseInPlace
 .extern buildFramedMessage
-.extern calcBcc
-.extern verifyBcc
+.extern calcActiveChecksum
+.extern calcCrc16
+.extern verifyFrameChecksum
 
 .section .data.exercise1, "aw", %progbits
 .align 4
@@ -17,8 +18,17 @@ exercise1LowercaseSample:
 exercise1FrameSource:
     .asciz "Lab1-Frame-Demo"
 
+.section .rodata.exercise1, "a", %progbits
+.align 4
+exercise1Crc16SelfTestPayload:
+    .asciz "123456789"
+
 .section .bss.exercise1, "aw", %nobits
 .align 4
+exercise1ActiveChecksumMode:
+    .word 0
+exercise1ActiveChecksumBytes:
+    .word 0
 exercise1InitialLength:
     .word 0
 exercise1UppercaseLength:
@@ -32,6 +42,12 @@ exercise1ChecksumValue:
 exercise1ChecksumValid:
     .word 0
 exercise1CorruptChecksumValid:
+    .word 0
+exercise1Crc16SelfTestExpected:
+    .word 0
+exercise1Crc16SelfTestActual:
+    .word 0
+exercise1Crc16SelfTestPass:
     .word 0
 exercise1FrameBuffer:
     .space MAX_FRAME_BYTES
@@ -53,6 +69,14 @@ exercise1CorruptFrameBuffer:
 .thumb_func
 exercise1Entry:
     push {r4-r8, lr}
+
+    ldr r0, =exercise1ActiveChecksumMode
+    ldr r1, =CHECKSUM_ACTIVE_MODE
+    str r1, [r0]
+
+    ldr r0, =exercise1ActiveChecksumBytes
+    ldr r1, =FRAME_CHECKSUM_BYTE_COUNT
+    str r1, [r0]
 
     ldr r1, =exercise1UppercaseSample
     bl stringLength
@@ -83,14 +107,14 @@ exercise1Entry:
 
     ldr r1, =exercise1FrameBuffer
     ldr r2, [r4]
-    subs r2, r2, #1
-    bl calcBcc
+    subs r2, r2, #FRAME_CHECKSUM_BYTE_COUNT
+    bl calcActiveChecksum
     ldr r0, =exercise1ChecksumValue
     str r3, [r0]
 
     ldr r1, =exercise1FrameBuffer
     ldr r2, [r4]
-    bl verifyBcc
+    bl verifyFrameChecksum
     ldr r0, =exercise1ChecksumValid
     str r3, [r0]
 
@@ -122,9 +146,30 @@ exercise1CopyFrameDone:
 exercise1SkipCorruption:
     ldr r1, =exercise1CorruptFrameBuffer
     ldr r2, [r4]
-    bl verifyBcc
+    bl verifyFrameChecksum
     ldr r0, =exercise1CorruptChecksumValid
     str r3, [r0]
+
+    ldr r1, =exercise1Crc16SelfTestPayload
+    bl stringLength
+    mov r5, r2
+
+    ldr r1, =exercise1Crc16SelfTestPayload
+    mov r2, r5
+    bl calcCrc16
+    ldr r0, =exercise1Crc16SelfTestActual
+    str r3, [r0]
+
+    ldr r6, =CRC16_CCITT_FALSE_CHECK_123456789
+    ldr r0, =exercise1Crc16SelfTestExpected
+    str r6, [r0]
+
+    cmp r3, r6
+    ite eq
+    moveq r7, #1
+    movne r7, #0
+    ldr r0, =exercise1Crc16SelfTestPass
+    str r7, [r0]
 
     pop {r4-r8, lr}
 

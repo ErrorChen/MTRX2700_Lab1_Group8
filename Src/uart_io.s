@@ -12,7 +12,7 @@
 
 .extern initialiseUartGpioPins
 .extern buildFramedMessage
-.extern verifyBcc
+.extern verifyFrameChecksum
 
 .section .rodata.uart_io, "a", %progbits
 .align 4
@@ -198,7 +198,7 @@ uartReceiveFramedMessage_readRest:
     b uartReceiveFramedMessage_readRest
 
 uartReceiveFramedMessage_readDone:
-    subs r2, r7, #2
+    subs r2, r7, #FRAME_TRAILER_LENGTH
     adds r2, r5, r2
     ldrb r0, [r2]
     cmp r0, #ETX
@@ -206,9 +206,9 @@ uartReceiveFramedMessage_readDone:
 
     mov r1, r5
     mov r2, r7
-    bl verifyBcc
+    bl verifyFrameChecksum
     cmp r3, #1
-    bne uartReceiveFramedMessage_bccError
+    bne uartReceiveFramedMessage_checksumError
 
     subs r8, r7, #FRAME_MIN_LENGTH
     cmp r8, #MAX_PAYLOAD_BYTES
@@ -247,8 +247,8 @@ uartReceiveFramedMessage_etxError:
     movs r2, #0
     b uartReceiveFramedMessage_done
 
-uartReceiveFramedMessage_bccError:
-    movs r3, #UART_STATUS_BCC_ERROR
+uartReceiveFramedMessage_checksumError:
+    movs r3, #UART_STATUS_CHECKSUM_ERROR
     movs r2, #0
     b uartReceiveFramedMessage_done
 
@@ -266,7 +266,7 @@ uartReceiveFramedMessage_done:
  * Clobbers: r0-r2, r4, lr
  * Preserved registers: r5-r11
  * Side effects: Transmits ACK control frame.
- * Test idea: Verify outgoing payload equals "ACK" with valid BCC.
+ * Test idea: Verify outgoing payload equals "ACK" with valid active checksum.
  */
 .type uartSendAckMessage, %function
 .thumb_func
@@ -290,7 +290,7 @@ uartSendAckMessage:
  * Clobbers: r0-r2, r4, lr
  * Preserved registers: r5-r11
  * Side effects: Transmits NAK control frame.
- * Test idea: Verify outgoing payload equals "NAK" with valid BCC.
+ * Test idea: Verify outgoing payload equals "NAK" with valid active checksum.
  */
 .type uartSendNakMessage, %function
 .thumb_func
@@ -426,7 +426,7 @@ waitForAckOrNakWithTimeout_haveNext:
     b waitForAckOrNakWithTimeout_readRest
 
 waitForAckOrNakWithTimeout_validate:
-    subs r2, r7, #2
+    subs r2, r7, #FRAME_TRAILER_LENGTH
     adds r2, r6, r2
     ldrb r1, [r2]
     cmp r1, #ETX
@@ -434,12 +434,12 @@ waitForAckOrNakWithTimeout_validate:
 
     mov r1, r6
     mov r2, r7
-    bl verifyBcc
+    bl verifyFrameChecksum
     cmp r3, #1
     bne waitForAckOrNakWithTimeout_nak
 
     subs r8, r7, #FRAME_MIN_LENGTH
-    cmp r8, #3
+    cmp r8, #ACK_NAK_PAYLOAD_LENGTH
     bne waitForAckOrNakWithTimeout_nak
 
     adds r2, r6, #2

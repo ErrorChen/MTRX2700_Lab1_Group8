@@ -7,7 +7,7 @@
 .thumb
 
 /* ======================= Runtime Selection ======================== */
-.equ ACTIVE_EXERCISE,                    4
+.equ ACTIVE_EXERCISE,                    1
 
 .equ EX2_MODE_BUTTON,                    0
 .equ EX2_MODE_TIMED,                     1
@@ -16,6 +16,28 @@
 .equ EX5_ROLE_TX,                        0
 .equ EX5_ROLE_RX,                        1
 .equ EX5_ACTIVE_ROLE,                    EX5_ROLE_TX
+
+.equ CHECKSUM_MODE_BCC,                  0
+.equ CHECKSUM_MODE_CRC16,                1
+.equ CHECKSUM_ACTIVE_MODE,               CHECKSUM_MODE_BCC
+
+.equ BCC_CHECKSUM_BYTE_COUNT,            1
+.equ CRC16_CHECKSUM_BYTE_COUNT,          2
+.equ CRC16_POLYNOMIAL,                   0x1021
+.equ CRC16_INITIAL_VALUE,                0xFFFF
+.equ CRC16_FINAL_XOR_VALUE,              0x0000
+.equ CRC16_REFLECT_INPUT,                0
+.equ CRC16_REFLECT_OUTPUT,               0
+.equ CRC16_TOPBIT,                       0x8000
+.equ CRC16_CCITT_FALSE_CHECK_123456789,  0x29B1
+
+.if CHECKSUM_ACTIVE_MODE == CHECKSUM_MODE_BCC
+.equ FRAME_CHECKSUM_BYTE_COUNT,          BCC_CHECKSUM_BYTE_COUNT
+.elseif CHECKSUM_ACTIVE_MODE == CHECKSUM_MODE_CRC16
+.equ FRAME_CHECKSUM_BYTE_COUNT,          CRC16_CHECKSUM_BYTE_COUNT
+.else
+.error "Unsupported CHECKSUM_ACTIVE_MODE"
+.endif
 
 /* ============================== RCC =============================== */
 .equ RCC_BASE,                           0x40021000
@@ -98,11 +120,15 @@
 .equ ASCII_LOWER_Z,                      0x7A
 .equ ASCII_CASE_DELTA,                   0x20
 
-.equ FRAME_MIN_LENGTH,                   4
-.equ FRAME_HEADER_LENGTH,                2
-.equ FRAME_TRAILER_LENGTH,               2
+.equ FRAME_STX_LENGTH,                   1
+.equ FRAME_LEN_FIELD_LENGTH,             1
+.equ FRAME_HEADER_LENGTH,                (FRAME_STX_LENGTH + FRAME_LEN_FIELD_LENGTH)
+.equ FRAME_ETX_LENGTH,                   1
+.equ FRAME_TRAILER_LENGTH,               (FRAME_ETX_LENGTH + FRAME_CHECKSUM_BYTE_COUNT)
+.equ FRAME_MIN_LENGTH,                   (FRAME_HEADER_LENGTH + FRAME_TRAILER_LENGTH)
 .equ MAX_PAYLOAD_BYTES,                  64
-.equ MAX_FRAME_BYTES,                    80
+.equ MAX_FRAME_BYTES,                    (FRAME_HEADER_LENGTH + MAX_PAYLOAD_BYTES + FRAME_TRAILER_LENGTH)
+.equ ACK_NAK_PAYLOAD_LENGTH,             3
 
 /* ============================== UART ============================== */
 .equ UART4_BASE,                         0x40004C00
@@ -167,7 +193,8 @@
 .equ UART_STATUS_OK,                     0
 .equ UART_STATUS_LENGTH_ERROR,           1
 .equ UART_STATUS_ETX_ERROR,              2
-.equ UART_STATUS_BCC_ERROR,              3
+.equ UART_STATUS_CHECKSUM_ERROR,         3
+.equ UART_STATUS_BCC_ERROR,              UART_STATUS_CHECKSUM_ERROR
 .equ UART_STATUS_PAYLOAD_ERROR,          4
 .equ UART_STATUS_TIMEOUT,                5
 
