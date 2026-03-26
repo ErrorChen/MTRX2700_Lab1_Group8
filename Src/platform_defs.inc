@@ -7,7 +7,7 @@
 .thumb
 
 /* ======================= Runtime Selection ======================== */
-.equ ACTIVE_EXERCISE,                    1
+.equ ACTIVE_EXERCISE,                    5
 
 .equ EX2_MODE_BUTTON,                    0
 .equ EX2_MODE_TIMED,                     1
@@ -15,7 +15,7 @@
 
 .equ EX5_ROLE_TX,                        0
 .equ EX5_ROLE_RX,                        1
-.equ EX5_ACTIVE_ROLE,                    EX5_ROLE_TX
+.equ EX5_ACTIVE_ROLE,                    EX5_ROLE_RX
 
 .equ CHECKSUM_MODE_BCC,                  0
 .equ CHECKSUM_MODE_CRC16,                1

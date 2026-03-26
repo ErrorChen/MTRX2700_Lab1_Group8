@@ -80,7 +80,7 @@ dispatchExerciseById_ex1:
     b exercise1Entry
 
 dispatchExerciseById_ex2:
-    b exercise2Entry
+    bl exercise2Entry
 
 dispatchExerciseById_ex3:
     b exercise3Entry
